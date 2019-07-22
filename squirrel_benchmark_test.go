@@ -3,8 +3,8 @@ package db_sql_benchmark
 import (
 	"testing"
 
+	"github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/lann/squirrel"
 )
 
 //
@@ -44,9 +44,9 @@ func BenchmarkSquirrelSelectComplex(b *testing.B) {
 			Distinct().
 			From("c").
 			Where("d = ? OR e = ?", 1, "wat").
-			Where(squirrel.Eq{"f": 2, "x": "hi"}).
+			// Where(squirrel.Eq{"f": 2, "x": "hi"}).
 			Where(map[string]interface{}{"g": 3}).
-			Where(squirrel.Eq{"h": []int{1, 2, 3}}).
+			// Where(squirrel.Eq{"h": []int{1, 2, 3}}).
 			GroupBy("i").
 			GroupBy("ii").
 			GroupBy("iii").
@@ -72,7 +72,7 @@ func BenchmarkSquirrelSelectSubquery(b *testing.B) {
 			From("c").
 			Distinct().
 			Column(squirrel.Alias(subSelect, "subq")).
-			Where(squirrel.Eq{"f": 2, "x": "hi"}).
+			// Where(squirrel.Eq{"f": 2, "x": "hi"}).
 			Where(map[string]interface{}{"g": 3}).
 			OrderBy("l").
 			OrderBy("l").

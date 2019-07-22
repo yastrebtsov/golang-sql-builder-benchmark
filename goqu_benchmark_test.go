@@ -12,7 +12,7 @@ import (
 var driver *sql.DB
 
 func init() {
-	db, _ := sqlmock.New()
+	db, _, _ := sqlmock.New()
 	driver = db
 }
 
@@ -26,14 +26,14 @@ func BenchmarkGoquSelectSimple(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		db.From("tickets").
 			Where(
-			goqu.And(
-				goqu.I("subdomain_id").Eq(1),
-				goqu.Or(
-					goqu.I("state").Eq("open"),
-					goqu.I("state").Eq("spam"),
+				goqu.And(
+					goqu.I("subdomain_id").Eq(1),
+					goqu.Or(
+						goqu.I("state").Eq("open"),
+						goqu.I("state").Eq("spam"),
+					),
 				),
-			),
-		).
+			).
 			ToSql()
 	}
 }
@@ -45,14 +45,14 @@ func BenchmarkGoquSelectConditional(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		qb := db.From("tickets").
 			Where(
-			goqu.And(
-				goqu.I("subdomain_id").Eq(1),
-				goqu.Or(
-					goqu.I("state").Eq("open"),
-					goqu.I("state").Eq("spam"),
+				goqu.And(
+					goqu.I("subdomain_id").Eq(1),
+					goqu.Or(
+						goqu.I("state").Eq("open"),
+						goqu.I("state").Eq("spam"),
+					),
 				),
-			),
-		)
+			)
 		if n%2 == 0 {
 			qb.GroupBy("subdomain_id").
 				Having(goqu.I("number").Eq(1)).
@@ -72,23 +72,23 @@ func BenchmarkGoquSelectComplex(b *testing.B) {
 		db.From("a", "b", "z", "y").
 			Select(goqu.DISTINCT("x")).
 			Where(
-			goqu.Or(
-				goqu.I("d").Eq(1),
-				goqu.I("e").Eq("wat"),
-			)).
+				goqu.Or(
+					goqu.I("d").Eq(1),
+					goqu.I("e").Eq("wat"),
+				)).
 			Where(
-			goqu.And(
-				goqu.I("f").Eq(2),
-				goqu.I("x").Eq("hi"),
-			)).
+				goqu.And(
+					goqu.I("f").Eq(2),
+					goqu.I("x").Eq("hi"),
+				)).
 			Where(
-			goqu.And(
-				goqu.I("g").Eq(3),
-			)).
+				goqu.And(
+					goqu.I("g").Eq(3),
+				)).
 			Where(
-			goqu.And(
-				goqu.I("h").Eq([]int{1, 2, 3}),
-			)).
+				goqu.And(
+					goqu.I("h").Eq([]int{1, 2, 3}),
+				)).
 			GroupBy("i").
 			GroupBy("ii").
 			GroupBy("iii").

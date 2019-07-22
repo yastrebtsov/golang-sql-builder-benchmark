@@ -13,18 +13,18 @@ A comparison of popular Go SQL query builders. Provides feature list and benchma
 
 # Feature list
 
-| feature                    | dbr | squirrel | sqrl | goqu |
-|----------------------------|-----|----------|------|------|
-| SelectBuilder              | +   | +        | +    | +    |
-| InsertBuilder              | +   | +        | +    | +    |
-| UpdateBuilder              | +   | +        | +    | +    |
-| DeleteBuilder              | +   | +        | +    | +    |
-| PostgreSQL support         |     | +        | +    | +    |
-| Custom placeholders        |     | +        | +    | +    |
-| JOINs support              |     | +        | +    | +    |
-| Subquery in query builder  |     | +        | +    | +    |
-| Aliases for columns        |     | +        | +    | +    |
-| CASE expression            |     | +        | +    | +    |
+| feature                    | dbr | squirrel | sqrl | goqu | goqu |
+|----------------------------|-----|----------|------|------|------|
+| SelectBuilder              | +   | +        | +    | +    | +    |
+| InsertBuilder              | +   | +        | +    | +    | +    |
+| UpdateBuilder              | +   | +        | +    | +    | +    |
+| DeleteBuilder              | +   | +        | +    | +    | +    |
+| PostgreSQL support         | +   | +        | +    | +    | +    |
+| Custom placeholders        | +   | +        | +    | +    | +    |
+| JOINs support              | +   | +        | +    | +    |      |
+| Subquery in query builder  |     | +        | +    | +    |      |
+| Aliases for columns        |     | +        | +    | +    |      |
+| CASE expression            |     | +        | +    | +    |      |
 
 Some explanations here:
 - `Custom placeholders` - ability to use not only `?` placeholders, Useful for PostgreSQL
@@ -46,41 +46,65 @@ qb := Select().Column(Alias(subQ, "alias")).From("a")
 `go test -bench=. -benchmem | column -t` on 2.6 GHz i5 Macbook Pro:
 
 ```
-BenchmarkDbrSelectSimple            500000       2610     ns/op  864    B/op  14   allocs/op
-BenchmarkDbrSelectConditional       500000       3808     ns/op  1031   B/op  19   allocs/op
-BenchmarkDbrSelectComplex           200000       11585    ns/op  3323   B/op  53   allocs/op
-BenchmarkDbrSelectSubquery          200000       10025    ns/op  2851   B/op  40   allocs/op
-BenchmarkDbrInsert                  500000       3717     ns/op  1136   B/op  19   allocs/op
-BenchmarkDbrUpdateSetColumns        300000       4106     ns/op  1038   B/op  24   allocs/op
-BenchmarkDbrUpdateSetMap            300000       5396     ns/op  1388   B/op  26   allocs/op
-BenchmarkDbrDelete                  1000000      2150     ns/op  482    B/op  13   allocs/op
+BenchmarkDbrSelectSimple-4                  2000000     812      ns/op  728    B/op  12   allocs/op
+BenchmarkDbrSelectSimplePostgreSQL-4        2000000     1015     ns/op  728    B/op  12   allocs/op
+BenchmarkDbrSelectConditional-4             1000000     1195     ns/op  976    B/op  17   allocs/op
+BenchmarkDbrSelectConditionalPostgreSQL-4   1000000     1202     ns/op  976    B/op  17   allocs/op
+BenchmarkDbrSelectComplex-4                 500000      4729     ns/op  2360   B/op  38   allocs/op
+BenchmarkDbrSelectComplexPostgreSQL-4       500000      3401     ns/op  2360   B/op  38   allocs/op
+BenchmarkDbrSelectSubquery-4                1000000     4212     ns/op  2160   B/op  29   allocs/op
+BenchmarkDbrSelectSubqueryPostgreSQL-4      500000      3812     ns/op  2160   B/op  29   allocs/op
+BenchmarkDbrInsert-4                        1000000     2737     ns/op  1136   B/op  26   allocs/op
+BenchmarkDbrInsertPostgreSQL-4              500000      3253     ns/op  1136   B/op  26   allocs/op
+BenchmarkDbrUpdateSetColumns-4              1000000     2979     ns/op  1297   B/op  28   allocs/op
+BenchmarkDbrUpdateSetColumnsPostgreSQL-4    500000      3914     ns/op  1297   B/op  28   allocs/op
+BenchmarkDbrUpdateSetMap-4                  500000      2756     ns/op  1296   B/op  28   allocs/op
+BenchmarkDbrUpdateSetMapPostgreSQL-4        500000      2832     ns/op  1296   B/op  28   allocs/op
+BenchmarkDbrDelete-4                        2000000     819      ns/op  496    B/op  12   allocs/op
+BenchmarkDbrDeletePostgreSQL-4              2000000     838      ns/op  496    B/op  12   allocs/op
 
 
-BenchmarkGoquSelectSimple           100000       15180    ns/op  3282   B/op  46   allocs/op
-BenchmarkGoquSelectConditional      100000       19655    ns/op  4258   B/op  61   allocs/op
-BenchmarkGoquSelectComplex          30000        50628    ns/op  11414  B/op  215  allocs/op
+BenchmarkGoquSelectSimple-4                 300000      5610     ns/op  3360   B/op  38   allocs/op
+BenchmarkGoquSelectConditional-4            200000      6043     ns/op  3804   B/op  49   allocs/op
+BenchmarkGoquSelectComplex-4                100000      19087    ns/op  9464   B/op  169  allocs/op
 
 
-BenchmarkSqrlSelectSimple           500000       3555     ns/op  952    B/op  15   allocs/op
-BenchmarkSqrlSelectConditional      300000       4377     ns/op  1112   B/op  20   allocs/op
-BenchmarkSqrlSelectComplex          100000       24040    ns/op  4751   B/op  100  allocs/op
-BenchmarkSqrlSelectSubquery         100000       26203    ns/op  3560   B/op  67   allocs/op
-BenchmarkSqrlSelectMoreComplex      30000        47018    ns/op  7256   B/op  150  allocs/op
-BenchmarkSqrlInsert                 200000       7773     ns/op  1304   B/op  25   allocs/op
-BenchmarkSqrlUpdateSetColumns       200000       8633     ns/op  1369   B/op  32   allocs/op
-BenchmarkSqrlUpdateSetMap           200000       15786    ns/op  1788   B/op  36   allocs/op
-BenchmarkSqrlDelete                 500000       3669     ns/op  496    B/op  12   allocs/op
+BenchmarkSqlfSelectSimple-4                 3000000     405      ns/op  80     B/op  1    allocs/op
+BenchmarkSqlfSelectSimplePostgreSQL-4       2000000     853      ns/op  224    B/op  4    allocs/op
+BenchmarkSqlfSelectConditional-4            1000000     1024     ns/op  148    B/op  3    allocs/op
+BenchmarkSqlfSelectConditionalPostgreSQL-4  1000000     1539     ns/op  280    B/op  6    allocs/op
+BenchmarkSqlfSelectComplex-4                1000000     2195     ns/op  192    B/op  5    allocs/op
+BenchmarkSqlfSelectComplexPostgreSQL-4      500000      2457     ns/op  208    B/op  5    allocs/op
+BenchmarkSqlfSelectSubquery-4               1000000     1845     ns/op  384    B/op  8    allocs/op
+BenchmarkSqlfSelectSubqueryPostgreSQL-4     1000000     2346     ns/op  528    B/op  11   allocs/op
+BenchmarkSqlfInsert-4                       1000000     1355     ns/op  96     B/op  1    allocs/op
+BenchmarkSqlfInsertPostgreSQL-4             1000000     1578     ns/op  96     B/op  1    allocs/op
+BenchmarkSqlfUpdateSetColumns-4             2000000     1039     ns/op  136    B/op  6    allocs/op
+BenchmarkSqlfUpdateSetColumnsPostgreSQL-4   1000000     1372     ns/op  136    B/op  6    allocs/op
+BenchmarkSqlfDelete-4                       2000000     557      ns/op  64     B/op  3    allocs/op
+BenchmarkSqlfDeletePostgreSQL-4             2000000     625      ns/op  64     B/op  3    allocs/op
 
 
-BenchmarkSquirrelSelectSimple       100000       14934    ns/op  2737   B/op  52   allocs/op
-BenchmarkSquirrelSelectConditional  100000       18034    ns/op  4023   B/op  84   allocs/op
-BenchmarkSquirrelSelectComplex      20000        63096    ns/op  12742  B/op  283  allocs/op
-BenchmarkSquirrelSelectSubquery     30000        48956    ns/op  9954   B/op  206  allocs/op
-BenchmarkSquirrelSelectMoreComplex  20000        83842    ns/op  17153  B/op  386  allocs/op
-BenchmarkSquirrelInsert             100000       14517    ns/op  3356   B/op  75   allocs/op
-BenchmarkSquirrelUpdateSetColumns   100000       23995    ns/op  4787   B/op  108  allocs/op
-BenchmarkSquirrelUpdateSetMap       50000        27141    ns/op  5203   B/op  112  allocs/op
-BenchmarkSquirrelDelete             100000       16728    ns/op  2815   B/op  67   allocs/op
+BenchmarkSqrlSelectSimple-4                 1000000     1139     ns/op  704    B/op  15   allocs/op
+BenchmarkSqrlSelectConditional-4            1000000     1485     ns/op  848    B/op  18   allocs/op
+BenchmarkSqrlSelectComplex-4                200000      8107     ns/op  4352   B/op  87   allocs/op
+BenchmarkSqrlSelectSubquery-4               300000      6371     ns/op  3352   B/op  65   allocs/op
+BenchmarkSqrlSelectMoreComplex-4            100000      12307    ns/op  6961   B/op  138  allocs/op
+BenchmarkSqrlInsert-4                       1000000     1771     ns/op  992    B/op  17   allocs/op
+BenchmarkSqrlUpdateSetColumns-4             500000      2129     ns/op  1056   B/op  25   allocs/op
+BenchmarkSqrlUpdateSetMap-4                 500000      2621     ns/op  1130   B/op  27   allocs/op
+BenchmarkSqrlDelete-4                       2000000     615      ns/op  304    B/op  9    allocs/op
+
+
+BenchmarkSquirrelSelectSimple-4             300000      6831     ns/op  2512   B/op  49   allocs/op
+BenchmarkSquirrelSelectConditional-4        200000      13046    ns/op  3756   B/op  79   allocs/op
+BenchmarkSquirrelSelectComplex-4            50000       31387    ns/op  10162  B/op  224  allocs/op
+BenchmarkSquirrelSelectSubquery-4           50000       25838    ns/op  8642   B/op  182  allocs/op
+BenchmarkSquirrelSelectMoreComplex-4        30000       50207    ns/op  17155  B/op  384  allocs/op
+BenchmarkSquirrelInsert-4                   200000      8589     ns/op  3040   B/op  67   allocs/op
+BenchmarkSquirrelUpdateSetColumns-4         100000      12964    ns/op  4464   B/op  103  allocs/op
+BenchmarkSquirrelUpdateSetMap-4             100000      13674    ns/op  4544   B/op  105  allocs/op
+BenchmarkSquirrelDelete-4                   200000      8116     ns/op  2592   B/op  63   allocs/op
 ```
 
 # Conclusion
